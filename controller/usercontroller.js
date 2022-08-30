@@ -8,13 +8,23 @@ const createcompany  = async(req,h) =>{
         await db.get().collection("company").insertOne(req.payload);
         return({Success:"Company Added Successfully!!!"});
     } catch (error) {
-        console.log({error:error.message});
+        console.log(error.message);
+        return h.response({ error: error.message }).code(500);
     }
 }
 
 const findcompany = async(request,h)=>{
     try {
     return await db.get().collection("company").find().toArray()
+    } catch (error) {
+        console.log({error:error.message});
+    }
+}
+
+const singalcompany = async(request,h)=>{
+    try {
+        const _id = ObjectId(request.params.id)
+        return await db.get().collection("company").findOne(_id)
     } catch (error) {
         console.log({error:error.message});
     }
@@ -62,9 +72,11 @@ const loginuser =async(request,h)=>{
         const {email,password} = request.payload;
         const user = await db.get().collection("users").findOne({email});
         if(!user) return h.response({error:"users is not register"})
-        const data  = await bcrypt.compare(password,user.password);
+        const data  = await bcrypt.compare(password,user.hashPassword);
         if(!data) return h.response({error:"Credential is Invalid"})
-        return h.response({success:"User Login Successfully!!!"})
+        const token = jwt.sign({_id:user._id}, "CrudOperationWithAuthenticationUsingJsonWebTokenInHapiJs");
+        await db.get().collection("users").updateOne({_id:user._id}, {$set:{token:token}})
+        return h.response({success:"User Login Successfully!!!",token})
 
     } catch (error) {
         console.log({error:error.message});
@@ -74,6 +86,7 @@ const loginuser =async(request,h)=>{
 module.exports = {
     createcompany,
     findcompany,
+    singalcompany,
     updatecompany,
     deletecompany,
     createuser,

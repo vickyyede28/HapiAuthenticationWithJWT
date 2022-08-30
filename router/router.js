@@ -8,6 +8,9 @@ const routes = [
         path:"/insertcompany",
         handler: companycontroller.createcompany,
         options:{
+            // auth:{
+            //     strategy:"auth"
+            // },
             validate:{
                 payload:Joi.object({
                     name:Joi.string().required(),
@@ -25,7 +28,28 @@ const routes = [
     {
         method:"get",
         path:"/",
-        handler:companycontroller.findcompany
+        handler:companycontroller.findcompany,
+        options: {
+            auth: {
+                strategy: 'auth'
+            }
+        }
+    },
+    {
+        method:"get",
+        path:"/getcompany/{id}",
+        handler:companycontroller.singalcompany,
+        options:{
+            auth:{
+                strategy:"auth"
+            },
+            validate:{
+                params:Joi.object({
+                    id:Joi.string().required()
+                })
+
+            }
+        }
     },
 
     {
@@ -33,6 +57,9 @@ const routes = [
         path:"/updatecompany/{id}",
         handler:companycontroller.updatecompany,
         options:{
+            auth:{
+                strategy:"auth"
+            },
             validate:{ 
                 payload:Joi.object({
                     name:Joi.string().required(),
@@ -51,6 +78,9 @@ const routes = [
         path:"/deletecompany/{id}",
         handler:companycontroller.deletecompany,
         options:{
+            auth:{
+                strategy:"auth"
+            },
             validate:{
                 params:Joi.object({
                     id:Joi.string().required()
